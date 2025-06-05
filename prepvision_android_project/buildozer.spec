@@ -9,7 +9,6 @@ requirements = python3,kivy
 orientation = portrait
 fullscreen = 1
 icon.filename = prepvision_launcher_icon.png
-android.sdk_path = /home/runner/.buildozer/android/platform
 
 [buildozer]
 log_level = 2
