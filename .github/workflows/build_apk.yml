@@ -66,9 +66,9 @@ jobs:
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform
           export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH
 
-          echo "AIDL check:"
-          ls -l $ANDROID_SDK_ROOT/build-tools/30.0.3/aidl || echo "AIDL still missing"
-
+          echo "Listing build-tools folder:"
+          find $ANDROID_SDK_ROOT/build-tools
+          find $HOME/.buildozer/android/platform/build-tools
           buildozer android debug
 
 
