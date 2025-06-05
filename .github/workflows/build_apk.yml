@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK (ZIP fallback)
 
 on:
   push:
@@ -27,8 +27,7 @@ jobs:
           export PATH=$HOME/.local/bin:$PATH
           buildozer android debug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@main
-        with:
-          name: prepvision_ai_launcher
-          path: bin/*.apk
+      - name: Zip APK
+        run: |
+          mkdir -p upload && cp bin/*.apk upload/
+          zip -r prepvision_ai_launcher.zip upload/
