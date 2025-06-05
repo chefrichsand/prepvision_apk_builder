@@ -20,6 +20,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel python3-virtualenv
+          pip install --user cython
           pip install --user buildozer
 
       - name: Build APK
