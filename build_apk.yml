@@ -1,0 +1,54 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y             build-essential             zip             unzip             git             openjdk-11-jdk             libgl1-mesa-dev             libgles2-mesa-dev
+          pip install --user cython buildozer
+
+      - name: Set up Android SDK with AIDL
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform
+          mkdir -p $ANDROID_SDK_ROOT/build-tools
+          cd $ANDROID_SDK_ROOT/build-tools
+          curl -O https://dl.google.com/android/repository/build-tools_r30.0.3-linux.zip
+          unzip -q build-tools_r30.0.3-linux.zip
+
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          cd $ANDROID_SDK_ROOT/cmdline-tools
+          curl -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -q tools.zip -d temp
+          mkdir -p latest
+          mv temp/cmdline-tools/* latest/
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT             "platform-tools"             "platforms;android-30"
+
+      - name: Build APK
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform
+          export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH
+          echo "Listing aidl binary:"
+          find $ANDROID_SDK_ROOT/build-tools -name aidl || echo "aidl not found"
+          buildozer android debug
+
+      - name: Zip APK
+        run: |
+          mkdir -p upload && cp bin/*.apk upload/
+          zip -r prepvision_ai_launcher.zip upload/
