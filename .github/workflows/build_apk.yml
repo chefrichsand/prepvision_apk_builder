@@ -1,4 +1,4 @@
-name: Build Android APK (ZIP fallback)
+name: Build Android APK
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,20 +20,30 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel python3-virtualenv
-          sudo apt install -y libgl1-mesa-dev libgles2-mesa-dev
-          pip install --user cython
-          pip install --user buildozer
+          sudo apt install -y \
+            build-essential \
+            zip \
+            unzip \
+            git \
+            openjdk-11-jdk \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev
 
-          # Install Android SDK (for aidl)
+          pip install --user cython buildozer
+
+      - name: Set up Android SDK
+        run: |
           mkdir -p $HOME/.buildozer/android/platform
           cd $HOME/.buildozer/android/platform
-          curl -O https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-          unzip -o commandlinetools-linux-8512546_latest.zip -d cmdline-tools
-          mkdir -p $HOME/.android && touch $HOME/.android/repositories.cfg
-          yes | cmdline-tools/tools/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform --licenses
-          cmdline-tools/tools/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform "build-tools;33.0.2" "platforms;android-33"
-
+          curl -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip -q tools.zip
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/* cmdline-tools/latest/
+          yes | cmdline-tools/latest/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform --licenses
+          cmdline-tools/latest/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform \
+            "platforms;android-33" \
+            "build-tools;33.0.2" \
+            "platform-tools"
 
       - name: Build APK
         run: |
