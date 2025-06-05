@@ -14,3 +14,4 @@ icon.filename = prepvision_launcher_icon.png
 [buildozer]
 log_level = 2
 warn_on_root = 1
+android.sdk_path = $HOME/buildozer/android/platform
