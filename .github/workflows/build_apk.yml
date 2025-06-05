@@ -34,24 +34,28 @@ jobs:
       - name: Set up Android SDK
         run: |
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform
-          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-          cd $ANDROID_SDK_ROOT/cmdline-tools
+          mkdir -p $ANDROID_SDK_ROOT
 
+          # Download command line tools
+          cd $ANDROID_SDK_ROOT
           curl -o tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-          unzip -q tools.zip -d temp
-          mkdir -p latest
-          mv temp/cmdline-tools/* latest/
+          unzip -q tools.zip -d cmdline-tools
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/cmdline-tools/* cmdline-tools/latest/
 
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
+          # Accept licenses
+          yes | cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
 
-          # INSTALL ONLY these three tools — block anything else
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
-            "platform-tools" \
+          # Install only platform-tools and platform
+          cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
             "platforms;android-30" \
-            "build-tools;30.0.3"
+            "platform-tools"
 
-          # LIST installed tools so we can confirm aidl later
-          ls -la $ANDROID_SDK_ROOT/build-tools/30.0.3/
+          # Manually download build-tools 30.0.3
+          mkdir -p $ANDROID_SDK_ROOT/build-tools
+          cd $ANDROID_SDK_ROOT/build-tools
+          curl -O https://dl.google.com/android/repository/build-tools_r30.0.3-linux.zip
+          unzip -q build-tools_r30.0.3-linux.zip
 
 
 
@@ -60,10 +64,10 @@ jobs:
       - name: Build APK
         run: |
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform
-          export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/30.0.3:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH
+          export PATH=$ANDROID_SDK_ROOT/build-tools/30.0.3:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH
 
-          echo "Confirming AIDL exists:"
-          ls -la $ANDROID_SDK_ROOT/build-tools/30.0.3/aidl || echo "AIDL not found"
+          echo "AIDL check:"
+          ls -l $ANDROID_SDK_ROOT/build-tools/30.0.3/aidl || echo "AIDL still missing"
 
           buildozer android debug
 
