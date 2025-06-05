@@ -44,16 +44,20 @@ jobs:
 
           yes | cmdline-tools/latest/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform --licenses
           cmdline-tools/latest/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform \
-            "platforms;android-33" \
-            "build-tools;33.0.2" \
+            "platforms;android-30" \
+            "build-tools;30.0.3" \
             "platform-tools"
+
 
       - name: Build APK
         run: |
+          # Set environment variables so Buildozer can find the SDK and AIDL
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/33.0.2:$PATH
-          export PATH=$HOME/.local/bin:$PATH
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/30.0.3:$HOME/.local/bin:$PATH
+          echo "ANDROIDSDK=$ANDROID_SDK_ROOT" >> ~/.bashrc
+          echo "PATH=$PATH" >> ~/.bashrc
           buildozer android debug
+
 
 
       - name: Zip APK
