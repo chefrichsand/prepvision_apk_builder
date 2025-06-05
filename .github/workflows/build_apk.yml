@@ -20,8 +20,19 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel python3-virtualenv
+          sudo apt install -y libgl1-mesa-dev libgles2-mesa-dev libncurses5
           pip install --user cython
           pip install --user buildozer
+
+          # Install Android SDK (for aidl)
+          mkdir -p $HOME/.buildozer/android/platform
+          cd $HOME/.buildozer/android/platform
+          curl -O https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip -o commandlinetools-linux-8512546_latest.zip -d cmdline-tools
+          mkdir -p $HOME/.android && touch $HOME/.android/repositories.cfg
+          yes | cmdline-tools/tools/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform --licenses
+          cmdline-tools/tools/bin/sdkmanager --sdk_root=${HOME}/.buildozer/android/platform "build-tools;33.0.2" "platforms;android-33"
+
 
       - name: Build APK
         run: |
