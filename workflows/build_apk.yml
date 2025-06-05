@@ -23,7 +23,10 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential zip unzip git openjdk-11-jdk libgl1-mesa-dev libgles2-mesa-dev
-          pip install --user cython buildozer wheel
+          python -m pip install --upgrade pip
+          python -m pip install --user cython buildozer wheel
+          python -m pip install --user -r requirements.txt
+          python -m pip install --user kivy
 
       - name: Cache Buildozer dependencies
         uses: actions/cache@v3
